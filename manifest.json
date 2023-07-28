@@ -1,10 +1,28 @@
 {
   "manifest_version": 3,
-  "name": "Hello Extensions",
-  "description": "Base Level Extension",
-  "version": "1.0",
+  "name": "Youversion Web",
+  "description": "Web Browser extension for YouVersion Bible App, to help make notes, bookmarks, and highlights more filterable among others.",
+  "version": "1.0.0",
   "action": {
-    "default_popup": "hello.html",
-    "default_icon": "hello_extensions.png"
-  }
+    "default_popup": "index.html",
+    "default_icon": "images/cartoon.png"
+  },
+  "icons": {
+    "16": "images/cartoon.png",
+    "32": "images/cartoon.png",
+    "48": "images/cartoon.png",
+    "128": "images/cartoon.png"
+  },
+  "content_scripts": [
+    {
+      "js": ["scripts/vue.global.js", "scripts/content.ts"],
+      "css": ["assets/styles.css"],
+      "matches": ["https://my.bible.com/*"]
+    }
+  ],
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "host_permissions": ["*://*.bible.com/"],
+  "permissions": ["cookies", "storage", "nativeMessaging"]
 }
