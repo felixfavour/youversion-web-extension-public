@@ -8,21 +8,59 @@ export default {
     return {
       tab: "bookmarks",
       data: {},
-      query: ""
+      query: "",
+      testData:
+      {
+        "kind": "bookmark",
+        "object": {
+          "moment_title": "This is test data that is very pretty",
+          "labels": ["Evangelism"],
+          "id": "4272388189001604973700",
+          "created_dt": "2023-07-21T18:32:35+00:00",
+          "updated_dt": null,
+          "references": [
+            {
+              "usfm": ["JON.3.2", "JON.3.3", "JON.3.4", "JON.3.5"],
+              "version_id": 116,
+              "human": "Jonah 3:2-5"
+            }
+          ],
+          "path": "/bookmarks/4272388189001673700",
+          "avatar": "//imageproxy.youversionapi.com/128x128/https://s3-us-west-2.amazonaws.com/mushroom-user-avatars-prod/100705594-1547968754245.jpg",
+          "time_ago": "6 days ago",
+          "owned_by_me": true,
+          "actions": {
+            "show": false,
+            "editable": true,
+            "deletable": true,
+            "read": true
+          },
+          "user": {
+            "id": 100705594,
+            "user_name": "fffelixfavour0",
+            "path": "/users/fffelixfavour0"
+          },
+          "comments": {
+            "enabled": true,
+            "count": 0,
+            "strings": {},
+            "all": []
+          },
+          "likes": {
+            "enabled": true,
+            "count": 0,
+            "user_ids": null,
+            "is_liked": false,
+            "strings": {},
+            "all": []
+          },
+          "next_cursor": null
+        }
+      }
     };
   },
   async created() {
     const app = this
-
-    // LISTEN TO DATA FROM CONTENT SCRIPT
-    chrome.runtime.onMessage.addListener(
-      function (request) {
-        if (request.bookmarks.length > 0 && request.notes.length > 0) {
-          app.data = request
-          console.log('data received', request)
-        }
-      }
-    );
 
     const storage = await chrome.storage.local.get()
     app.data = { bookmarks: storage.bookmarks, notes: storage.notes }
@@ -72,7 +110,9 @@ export default {
           Notes
         </button>
       </div>
-      <input type="text" :placeholder="`Search ${tab}`" v-model="query" />
+      <input type="text"
+        :placeholder="`Search ${tab === 'bookmarks' ? data?.bookmarks?.length : data?.notes?.length} ${tab}`"
+        v-model="query" />
       <div id="youversion-search-list">
         <div v-if="query" class="yv-search-header come-up">
           Filtering {{  tab  }} with query: "{{  query  }}"
@@ -125,6 +165,11 @@ export default {
                    new Date(bookmark.object.created_dt)
                    .toDateString()
                    .replace(" ", ", ")
+
+
+
+
+
 
 
 
@@ -248,6 +293,11 @@ export default {
 
 
 
+
+
+
+
+
                   }}
                 </div>
               </div>
@@ -267,6 +317,11 @@ export default {
                    new Date(note.object.created_dt)
                    .toDateString()
                    .replace(" ", ", ")
+
+
+
+
+
 
 
 

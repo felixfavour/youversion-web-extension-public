@@ -16,23 +16,18 @@ const getCookies = async () => {
 const getUser = async () => {
   await getCookies()
   const promise = await fetch(`https://nodejs.bible.com/api/users/view/3.1?id=${youversionUserID}`)
-  const bookmarks = JSON.parse(sessionStorage.getItem('bookmarks'))
-  const notes = JSON.parse(sessionStorage.getItem('notes'))
+  const storage = await chrome.storage.local.get()
   youversionUser = await promise.json()
 
-  if (bookmarks?.length === 0) {
+  if (storage?.bookmarks?.length === 0) {
     // const localBookmarks = JSON.parse(sessionStorage.getItem('bookmarks') as string)
     getBookmarks()
   }
 
-  if (notes?.length === 0) {
+  if (storage?.notes?.length === 0) {
     // const localNotes = JSON.parse(sessionStorage.getItem('notes') as string)
     getNotes()
   }
-
-  // Send data to extension popup
-  await chrome.runtime.sendMessage({ bookmarks: bookmarksData, notes: notesData });
-
 }
 
 const getBookmarks = async () => {
