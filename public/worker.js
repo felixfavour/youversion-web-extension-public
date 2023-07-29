@@ -28,3 +28,11 @@ chrome.cookies.get({ url: 'https://my.bible.com', name: 'yvid' }, (cookie) => {
     console.log('yvid', cookie.value);
   }
 });
+
+chrome.storage.local.set({ bookmarks: [] })
+
+chrome.storage.local.set({ notes: [] })
+
+chrome.storage.local.get().then((obj) => {
+  console.log(obj)
+})

@@ -7,57 +7,9 @@ export default {
   data() {
     return {
       tab: "bookmarks",
-      data: {},
+      data: { bookmarks: [], notes: [] },
       query: "",
-      loading: false,
-      testData:
-      {
-        "kind": "bookmark",
-        "object": {
-          "moment_title": "This is test data that is very pretty",
-          "labels": ["Evangelism"],
-          "id": "4272388189001604973700",
-          "created_dt": "2023-07-21T18:32:35+00:00",
-          "updated_dt": null,
-          "references": [
-            {
-              "usfm": ["JON.3.2", "JON.3.3", "JON.3.4", "JON.3.5"],
-              "version_id": 116,
-              "human": "Jonah 3:2-5"
-            }
-          ],
-          "path": "/bookmarks/4272388189001673700",
-          "avatar": "//imageproxy.youversionapi.com/128x128/https://s3-us-west-2.amazonaws.com/mushroom-user-avatars-prod/100705594-1547968754245.jpg",
-          "time_ago": "6 days ago",
-          "owned_by_me": true,
-          "actions": {
-            "show": false,
-            "editable": true,
-            "deletable": true,
-            "read": true
-          },
-          "user": {
-            "id": 100705594,
-            "user_name": "fffelixfavour0",
-            "path": "/users/fffelixfavour0"
-          },
-          "comments": {
-            "enabled": true,
-            "count": 0,
-            "strings": {},
-            "all": []
-          },
-          "likes": {
-            "enabled": true,
-            "count": 0,
-            "user_ids": null,
-            "is_liked": false,
-            "strings": {},
-            "all": []
-          },
-          "next_cursor": null
-        }
-      }
+      loading: false
     };
   },
   async created() {
@@ -137,6 +89,11 @@ export default {
 
         <!-- BOOKMARKS CARD -->
         <div v-if="tab === 'bookmarks'" class="bookmarks">
+          <div v-if="data?.bookmarks?.length === 0" class="center">
+            Bookmarks still loading...
+            <span>Go to <a href="https://my.bible.com" target="_blank">Youversion Bible App</a> and check back in
+              ~2mins</span>
+          </div>
           <div v-if="results" class="yv-search-grid come-up">
             <div class="yv-card come-up" v-for="bookmark in results" :key="bookmark.id"
               v-show="bookmark.kind === 'bookmark'">
@@ -251,6 +208,30 @@ export default {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                   }}
                 </div>
               </div>
@@ -260,6 +241,11 @@ export default {
 
         <!-- NOTES CARD -->
         <div v-if="tab === 'notes'" class="notes">
+          <div v-if="data?.notes?.length === 0" class="center">
+            Notes still loading...
+            <span>Go to <a href="https://my.bible.com" target="_blank">Youversion Bible App</a> and check back in
+              ~2mins</span>
+          </div>
           <div v-if="results" class="yv-search-grid come-up">
             <div class="yv-card come-up" v-for="note in results" :key="note.id" v-show="note.kind === 'note'">
               <div class="col">
@@ -274,6 +260,30 @@ export default {
                    new Date(note.object.created_dt)
                    .toDateString()
                    .replace(" ", ", ")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -431,6 +441,30 @@ export default {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                   }}
                 </div>
               </div>
@@ -458,6 +492,28 @@ h1 {
 /* YOUVERSION SEARCH CONTENT */
 button {
   cursor: pointer;
+}
+
+.center {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 500;
+  height: 80px;
+}
+
+.center span {
+  font-size: 0.8rem;
+  display: block;
+  text-align: center;
+  color: #595959;
+  margin: 0 auto;
+  margin-top: 0.3rem;
+  max-width: 200px;
+}
+
+.center span a {
+  color: #ffab2d;
+  text-decoration: none;
 }
 
 #youversion-search {
