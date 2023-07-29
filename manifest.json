@@ -5,13 +5,13 @@
   "version": "1.0.0",
   "action": {
     "default_popup": "index.html",
-    "default_icon": "images/cartoon.png"
+    "default_icon": "images/youversion-search-128.png"
   },
   "icons": {
-    "16": "images/cartoon.png",
-    "32": "images/cartoon.png",
-    "48": "images/cartoon.png",
-    "128": "images/cartoon.png"
+    "16": "images/youversion-search-16.png",
+    "32": "images/youversion-search-32.png",
+    "48": "images/youversion-search-48.png",
+    "128": "images/youversion-search-128.png"
   },
   "content_scripts": [
     {
