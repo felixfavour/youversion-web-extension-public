@@ -15,7 +15,7 @@
   },
   "content_scripts": [
     {
-      "js": ["scripts/content.ts"],
+      "js": ["scripts/content-script.ts"],
       "matches": ["https://my.bible.com/*"]
     }
   ],

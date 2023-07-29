@@ -1,36 +1,49 @@
+<!-- eslint-disable no-undef -->
 <script>
-import data from "./data";
+// import data from "./data";
 
 export default {
   name: "App",
   data() {
     return {
       tab: "bookmarks",
-      data: data,
+      data: {},
       query: ""
     };
   },
   async created() {
-    // eslint-disable-next-line no-undef
+    const app = this
+
+    // LISTEN TO DATA FROM CONTENT SCRIPT
+    chrome.runtime.onMessage.addListener(
+      function (request) {
+        if (request.bookmarks.length > 0 && request.notes.length > 0) {
+          app.data = request
+          console.log('data received', request)
+        }
+      }
+    );
+
     const storage = await chrome.storage.local.get()
-    console.log('storage from vue instance', storage)
+    app.data = { bookmarks: storage.bookmarks, notes: storage.notes }
   },
   computed: {
     results() {
       if (this.query) {
         let cardsInner =
-          this.tab.value === "bookmarks" ? data.bookmarks : data.notes;
+          this.tab === "bookmarks" ? (this.data.bookmarks || []) : (this.data.notes || []);
+        console.log('cardsInner', cardsInner)
         return cardsInner.filter(
           (card) =>
             JSON.stringify(card.object.labels)
-              .toLowerCase()
-              .includes(this.query.value.toLowerCase()) ||
+              ?.toLowerCase()
+              .includes(this.query.toLowerCase()) ||
             JSON.stringify(card.object.references)
-              .toLowerCase()
-              .includes(this.query.value.toLowerCase()) ||
+              ?.toLowerCase()
+              .includes(this.query.toLowerCase()) ||
             JSON.stringify(card.object.content)
-              .toLowerCase()
-              .includes(this.query.value.toLowerCase())
+              ?.toLowerCase()
+              .includes(this.query.toLowerCase())
         );
       }
       return null;
@@ -47,7 +60,10 @@ export default {
 <template>
   <div id="youversion-search">
     <div class="youversion-search-main active">
-      <h1>Youversion Search</h1>
+      <div class="flex">
+        <h1>Youversion Search</h1>
+        <span>by <a href="https://favourfelix.com" target="_blank">Favour Felix</a></span>
+      </div>
       <div class="tabs">
         <button class="tab" :class="{ active: tab === 'bookmarks' }" @click="tab = 'bookmarks'">
           Bookmarks
@@ -59,7 +75,7 @@ export default {
       <input type="text" :placeholder="`Search ${tab}`" v-model="query" />
       <div id="youversion-search-list">
         <div v-if="query" class="yv-search-header come-up">
-          Filtering {{  tab  }} with query: "{{  query  }}""
+          Filtering {{  tab  }} with query: "{{  query  }}"
         </div>
 
         <!-- BOOKMARKS CARD -->
@@ -82,19 +98,7 @@ export default {
                 </div>
                 <div class="time">
                   {{
-                   new Date(bookmark.object.created_dt)
-                   .toDateString()
-                   .replace(" ", ", ")
-
-
-
-
-
-
-
-
-
-
+                   new Date(bookmark.object.created_dt).toDateString().replace(" ", ", ") 
                   }}
                 </div>
               </div>
@@ -121,6 +125,46 @@ export default {
                    new Date(bookmark.object.created_dt)
                    .toDateString()
                    .replace(" ", ", ")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -164,6 +208,46 @@ export default {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                   }}
                 </div>
               </div>
@@ -183,6 +267,46 @@ export default {
                    new Date(note.object.created_dt)
                    .toDateString()
                    .replace(" ", ", ")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -214,6 +338,7 @@ main {
 
 h1 {
   margin-top: 0;
+  margin-bottom: 0.7rem;
 }
 
 /* YOUVERSION SEARCH CONTENT */
@@ -267,6 +392,28 @@ button {
   -o-transition: 0.2s;
   font-size: 1rem;
   padding: 0;
+}
+
+.flex {
+  display: flex;
+  align-items: flex-end;
+}
+
+.flex h1 {
+  white-space: nowrap;
+}
+
+.flex span {
+  white-space: nowrap;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  margin-left: 6px;
+}
+
+.flex span a {
+  color: #ffab2d;
+  text-decoration: none;
+  font-size: 0.8rem;
 }
 
 #youversion-search .tab.active,
@@ -331,7 +478,7 @@ input {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  max-height: 360px;
+  max-height: 310px;
   overflow-y: auto;
 }
 

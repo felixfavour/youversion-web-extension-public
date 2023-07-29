@@ -19,3 +19,12 @@ chrome.cookies.get({ url: 'https://my.bible.com', name: 'OAUTH' }, (cookie) => {
     console.log('OAUTH', cookie.value);
   }
 });
+
+chrome.cookies.get({ url: 'https://my.bible.com', name: 'yvid' }, (cookie) => {
+  if (cookie) {
+    chrome.storage.local.set({ yvid: cookie.value }).then(() => {
+      console.log("Value is set");
+    });
+    console.log('yvid', cookie.value);
+  }
+});
