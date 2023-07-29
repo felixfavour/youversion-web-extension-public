@@ -9,6 +9,7 @@ export default {
       tab: "bookmarks",
       data: {},
       query: "",
+      loading: false,
       testData:
       {
         "kind": "bookmark",
@@ -90,6 +91,13 @@ export default {
   methods: {
     removeHTML(string) {
       return string.replaceAll('<b>', '').replaceAll('</b>', '')
+    },
+    async refreshData() {
+      this.loading = true
+      const storage = await chrome.storage.local.get()
+      await chrome.storage.local.set({ bookmarks: [], notes: [] })
+      this.data = { bookmarks: storage.bookmarks, notes: storage.notes }
+      this.loading = false
     }
   }
 };
@@ -101,6 +109,15 @@ export default {
       <div class="flex">
         <h1>Youversion Search</h1>
         <span>by <a href="https://favourfelix.com" target="_blank">Favour Felix</a></span>
+        <!-- <button class="clear-btn" @click="refreshData">
+          <svg :class="{ rotate: loading }" xmlns="http://www.w3.org/2000/svg"
+            class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+            stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+          </svg>
+        </button> -->
       </div>
       <div class="tabs">
         <button class="tab" :class="{ active: tab === 'bookmarks' }" @click="tab = 'bookmarks'">
@@ -165,6 +182,20 @@ export default {
                    new Date(bookmark.object.created_dt)
                    .toDateString()
                    .replace(" ", ", ")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -298,6 +329,20 @@ export default {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                   }}
                 </div>
               </div>
@@ -317,6 +362,20 @@ export default {
                    new Date(note.object.created_dt)
                    .toDateString()
                    .replace(" ", ", ")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -452,6 +511,7 @@ button {
 .flex {
   display: flex;
   align-items: flex-end;
+  position: relative;
 }
 
 .flex h1 {
@@ -463,6 +523,24 @@ button {
   margin-bottom: 1rem;
   font-size: 0.8rem;
   margin-left: 6px;
+}
+
+.flex .clear-btn {
+  margin-bottom: 1rem;
+  border: 0;
+  outline: none;
+  background: #FFF;
+  position: absolute;
+  right: 0;
+}
+
+.flex .clear-btn.rotate {
+  margin-bottom: 0.5rem;
+  border: 0;
+  outline: none;
+  background: #FFF;
+  height: 40px;
+  width: 40px;
 }
 
 .flex span a {
