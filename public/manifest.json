@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Youversion Web",
+  "name": "Youversion Web v3",
   "description": "Web Browser extension for YouVersion Bible App, to help make notes, bookmarks, and highlights more filterable among others.",
   "version": "1.0",
   "action": {
@@ -16,18 +16,12 @@
   "content_scripts": [
     {
       "js": ["scripts/content.ts"],
-      "matches": [
-        "https://my.bible.com/*"
-      ]
+      "matches": ["https://my.bible.com/*"]
     }
   ],
   "background": {
     "service_worker": "worker.js"
   },
-  "host_permissions": [
-    "*://*.bible.com/"
-  ],
-  "permissions": [
-    "cookies", "storage"
-  ]
+  "host_permissions": ["*://*.bible.com/"],
+  "permissions": ["cookies", "storage"]
 }

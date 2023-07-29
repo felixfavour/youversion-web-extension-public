@@ -1,21 +1,47 @@
-<script setup lang="ts">
-  import { onMounted, ref, watc, computed } from 'vue';
-  import data from './data'
+<script>
+import data from "./data";
 
-  const tab = ref('bookmarks')
-  const query = ref('')
-
-  const results = computed(() => {
-    if (query.value) {
-      let cardsInner = tab.value === 'bookmarks' ? data.bookmarks : data.notes
-      return cardsInner.filter(card => 
-        JSON.stringify(card.object.labels)?.toLowerCase().includes(query.value.toLowerCase()) ||
-        JSON.stringify(card.object.references)?.toLowerCase().includes(query.value.toLowerCase())
-      )
+export default {
+  name: "App",
+  data() {
+    return {
+      tab: "bookmarks",
+      data: data,
+      query: ""
+    };
+  },
+  async created() {
+    // eslint-disable-next-line no-undef
+    const storage = await chrome.storage.local.get()
+    console.log('storage from vue instance', storage)
+  },
+  computed: {
+    results() {
+      if (this.query) {
+        let cardsInner =
+          this.tab.value === "bookmarks" ? data.bookmarks : data.notes;
+        return cardsInner.filter(
+          (card) =>
+            JSON.stringify(card.object.labels)
+              .toLowerCase()
+              .includes(this.query.value.toLowerCase()) ||
+            JSON.stringify(card.object.references)
+              .toLowerCase()
+              .includes(this.query.value.toLowerCase()) ||
+            JSON.stringify(card.object.content)
+              .toLowerCase()
+              .includes(this.query.value.toLowerCase())
+        );
+      }
+      return null;
+    },
+  },
+  methods: {
+    removeHTML(string) {
+      return string.replaceAll('<b>', '').replaceAll('</b>', '')
     }
-    return null
-  })
-
+  }
+};
 </script>
 
 <template>
@@ -26,29 +52,151 @@
         <button class="tab" :class="{ active: tab === 'bookmarks' }" @click="tab = 'bookmarks'">
           Bookmarks
         </button>
-        <button class="tab" :class="{ active: tab === 'notes' }" @click="tab = 'notes'">Notes</button>
+        <button class="tab" :class="{ active: tab === 'notes' }" @click="tab = 'notes'">
+          Notes
+        </button>
       </div>
-      <input type="text" :placeholder="`Search ${tab}`" v-model="query">
+      <input type="text" :placeholder="`Search ${tab}`" v-model="query" />
       <div id="youversion-search-list">
-        <div class="yv-search-header">
-          Filtering by: {{ query }}
+        <div v-if="query" class="yv-search-header come-up">
+          Filtering {{  tab  }} with query: "{{  query  }}""
         </div>
 
         <!-- BOOKMARKS CARD -->
-        <div v-if="results" class="yv-search-grid">
-          <div class="yv-card" v-for="bookmark in results" :key="bookmark.id" v-show="bookmark.kind === 'bookmark'">
-            <div class="title">{{ bookmark?.object.moment_title }}</div>
-            <div class="labels">{{ bookmark?.object.labels }}</div>
-            <div class="time">Added {{bookmark?.time_ago}}</div>
-            <div class="scripture">Scripture: {{ bookmark?.object?.references.human }}</div>
+        <div v-if="tab === 'bookmarks'" class="bookmarks">
+          <div v-if="results" class="yv-search-grid come-up">
+            <div class="yv-card come-up" v-for="bookmark in results" :key="bookmark.id"
+              v-show="bookmark.kind === 'bookmark'">
+              <div class="col">
+                <div class="title">
+                  {{  removeHTML(bookmark.object.moment_title)  }}
+                </div>
+                <div class="labels">
+                  <div v-for="chip in bookmark.object.labels" :key="chip" class="label chip">
+                    {{  chip  }}
+                  </div>
+                  <div v-for="scripture in bookmark.object.references" :key="scripture.human"
+                    class="scripture chip favour">
+                    {{  scripture.human  }}
+                  </div>
+                </div>
+                <div class="time">
+                  {{
+                   new Date(bookmark.object.created_dt)
+                   .toDateString()
+                   .replace(" ", ", ")
+
+
+
+
+
+
+
+
+
+
+                  }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="yv-search-grid come-up">
+            <div class="yv-card come-up" v-for="bookmark in data.bookmarks" :key="bookmark.id"
+              v-show="bookmark.kind === 'bookmark'">
+              <div class="col">
+                <div class="title">
+                  {{  removeHTML(bookmark.object.moment_title)  }}
+                </div>
+                <div class="labels">
+                  <div v-for="chip in bookmark.object.labels" :key="chip" class="label chip">
+                    {{  chip  }}
+                  </div>
+                  <div v-for="scripture in bookmark.object.references" :key="scripture.human"
+                    class="scripture chip favour">
+                    {{  scripture.human  }}
+                  </div>
+                </div>
+                <div class="time">
+                  {{
+                   new Date(bookmark.object.created_dt)
+                   .toDateString()
+                   .replace(" ", ", ")
+
+
+
+
+
+
+
+
+
+
+                  }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div v-else class="yv-search-grid">
-          <div class="yv-card" v-for="bookmark in data.bookmarks" :key="bookmark.id" v-show="bookmark.kind === 'bookmark'">
-            <div class="title">{{ bookmark?.object.moment_title }}</div>
-            <div class="labels">{{ bookmark?.object.labels }}</div>
-            <div class="time">Added {{bookmark?.time_ago}}</div>
-            <div class="scripture">Scripture: {{ bookmark?.object?.references.human }}</div>
+
+        <!-- NOTES CARD -->
+        <div v-if="tab === 'notes'" class="notes">
+          <div v-if="results" class="yv-search-grid come-up">
+            <div class="yv-card come-up" v-for="note in results" :key="note.id" v-show="note.kind === 'note'">
+              <div class="col">
+                <div class="title">{{  note.object.content  }}</div>
+                <div class="labels">
+                  <div v-for="scripture in note.object.references" :key="scripture.human" class="scripture chip favour">
+                    {{  scripture.human  }}
+                  </div>
+                </div>
+                <div class="time">
+                  {{
+                   new Date(note.object.created_dt)
+                   .toDateString()
+                   .replace(" ", ", ")
+
+
+
+
+
+
+
+
+
+
+                  }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="yv-search-grid come-up">
+            <div class="yv-card come-up" v-for="note in data.notes" :key="note.id" v-show="note.kind === 'note'">
+              <div class="col">
+                <div class="title">{{  note.object.content  }}</div>
+                <div class="labels">
+                  <div v-for="scripture in note.object.references" :key="scripture.human" class="scripture chip favour">
+                    {{  scripture.human  }}
+                  </div>
+                </div>
+                <div class="time">
+                  {{
+                   new Date(note.object.created_dt)
+                   .toDateString()
+                   .replace(" ", ", ")
+
+
+
+
+
+
+
+
+
+
+                  }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -64,14 +212,20 @@ main {
   padding: 1rem 0;
 }
 
+h1 {
+  margin-top: 0;
+}
+
 /* YOUVERSION SEARCH CONTENT */
 button {
   cursor: pointer;
 }
+
 #youversion-search {
   position: relative;
   background: transparent;
 }
+
 #youversion-search button#open-search {
   /* position: fixed;
   bottom: 1rem;
@@ -89,12 +243,14 @@ button {
   background: #2b3031;
   color: #fff;
 }
+
 #youversion-search .tabs {
   display: grid;
   grid-template-columns: repeat(2, 48.5%);
   gap: 3%;
   margin: 1rem 0;
 }
+
 #youversion-search button.tab {
   height: 40px;
   border-radius: 10px;
@@ -112,23 +268,23 @@ button {
   font-size: 1rem;
   padding: 0;
 }
+
 #youversion-search .tab.active,
 #youversion-search .tab:hover {
   background: #ff3d4d;
   color: #fff;
 }
+
 .youversion-search-main {
-  height: 80vh;
-  max-height: 800px;
   width: 400px;
   /* position: fixed;
   bottom: calc(2rem + 80px);
   right: 1rem; */
   padding: 2rem;
   background: #fff;
-  border: 1px solid #ff3d4d11;
+  /* border: 1px solid #ff3d4d11;
   box-shadow: 3px 2px 25px rgba(2, 129, 255, 0.09);
-  border-radius: 10px;
+  border-radius: 10px; */
   opacity: 0;
   transform: translateY(100px);
   -webkit-transform: translateY(100px);
@@ -143,6 +299,7 @@ button {
   visibility: hidden;
   z-index: 1;
 }
+
 .youversion-search-main.active {
   visibility: visible;
   opacity: 1;
@@ -155,7 +312,7 @@ button {
 }
 
 input {
-  width: 100%;
+  width: calc(100% - 2rem);
   height: 40px;
   outline: none;
   border: 1px solid #cecece;
@@ -163,23 +320,67 @@ input {
   border-radius: 10px;
   padding: 0 12px;
 }
+
 .yv-search-header {
   margin-bottom: 1rem;
   font-size: 1.2rem;
   font-weight: bold;
 }
+
 .yv-search-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 48%);
-  gap: 1rem 4%;
-  max-height: 550px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  max-height: 360px;
   overflow-y: auto;
 }
+
 .yv-card {
+  flex-basis: 100%;
   padding: 1rem;
-  background: #FFF;
-  border: 1px solid rgba(2,28,62,.03);
-  box-shadow: 3px 2px 25px rgba(2,129,255,.03);
+  background: #fff;
+  border: 1px solid rgba(2, 28, 62, 0.03);
+  box-shadow: 3px 2px 25px rgba(2, 129, 255, 0.03);
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  justify-content: space-between;
+}
+
+.yv-card .title {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.yv-card .labels,
+.yv-card .scriptures {
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.yv-card .chip {
+  background: #ffe9eb;
+  border: 1px solid #ff3d4d;
+  color: #ff3d4d;
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: inline-flex;
+  font-size: 0.85rem;
+}
+
+.yv-card .chip.favour {
+  background: #ffefd7;
+  border: 1px solid #ffab2d;
+  color: #ffab2d;
+}
+
+.yv-card .time {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  color: #595959;
 }
 </style>
