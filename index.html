@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vite App</title>
+    <link rel="stylesheet" href="assets/styles.css">
+  </head>
+  <body>
+    <div id="app">
+      <h1>Youversion Searcher</h1>
+      <div class="tabs">
+        <button class="tab" :class="{ active: tab === 'bookmarks' }" @click="tab = 'bookmarks'">
+          Bookmarks
+        </button>
+        <button class="tab" :class="{ active: tab === 'notes' }" @click="tab = 'notes'">
+          Notes
+        </button>
+        <button class="tab" :class="{ active: tab === 'highlights' }" @click="tab = 'highlights'">
+          Highlights
+        </button>
+      </div>
+      <main>
+        <h2>{{ location }}</h2>
+      </main>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
