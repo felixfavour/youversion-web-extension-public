@@ -9,21 +9,23 @@ export default {
       tab: "bookmarks",
       data: { bookmarks: [], notes: [] },
       query: "",
-      loading: false
+      loading: false,
     };
   },
   async created() {
-    const app = this
+    const app = this;
 
-    const storage = await chrome.storage.local.get()
-    app.data = { bookmarks: storage.bookmarks, notes: storage.notes }
+    const storage = await chrome.storage.local.get();
+    app.data = { bookmarks: storage.bookmarks, notes: storage.notes, lastUpdated: storage.lastUpdated };
   },
   computed: {
     results() {
       if (this.query) {
         let cardsInner =
-          this.tab === "bookmarks" ? (this.data.bookmarks || []) : (this.data.notes || []);
-        console.log('cardsInner', cardsInner)
+          this.tab === "bookmarks"
+            ? this.data.bookmarks || []
+            : this.data.notes || [];
+        console.log("cardsInner", cardsInner);
         return cardsInner.filter(
           (card) =>
             JSON.stringify(card.object.labels)
@@ -42,16 +44,16 @@ export default {
   },
   methods: {
     removeHTML(string) {
-      return string.replaceAll('<b>', '').replaceAll('</b>', '')
+      return string.replaceAll("<b>", "").replaceAll("</b>", "");
     },
     async refreshData() {
-      this.loading = true
-      const storage = await chrome.storage.local.get()
-      await chrome.storage.local.set({ bookmarks: [], notes: [] })
-      this.data = { bookmarks: storage.bookmarks, notes: storage.notes }
-      this.loading = false
-    }
-  }
+      this.loading = true;
+      const storage = await chrome.storage.local.get();
+      await chrome.storage.local.set({ bookmarks: [], notes: [], lastUpdated: null });
+      this.data = { bookmarks: storage.bookmarks, notes: storage.notes, lastUpdated: storage.lastUpdated };
+      this.loading = false;
+    },
+  },
 };
 </script>
 
@@ -60,7 +62,12 @@ export default {
     <div class="youversion-search-main active">
       <div class="flex">
         <h1>Youversion Search</h1>
-        <span>by <a href="https://favourfelix.com" target="_blank">Favour Felix</a></span>
+        <span
+          >by
+          <a href="https://favourfelix.com" target="_blank"
+            >Favour Felix</a
+          ></span
+        >
         <!-- <button class="clear-btn" @click="refreshData">
           <svg :class="{ rotate: loading }" xmlns="http://www.w3.org/2000/svg"
             class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -70,168 +77,123 @@ export default {
             <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
           </svg>
         </button> -->
+        
+      </div>
+      <div class="flex">
+        <span>
+          Last updated: {{ data.lastUpdated }}, 
+          <a href="https://my.bible.com" target="_blank">Refresh Data</a>
+        </span>
       </div>
       <div class="tabs">
-        <button class="tab" :class="{ active: tab === 'bookmarks' }" @click="tab = 'bookmarks'">
+        <button
+          class="tab"
+          :class="{ active: tab === 'bookmarks' }"
+          @click="tab = 'bookmarks'"
+        >
           Bookmarks
         </button>
-        <button class="tab" :class="{ active: tab === 'notes' }" @click="tab = 'notes'">
+        <button
+          class="tab"
+          :class="{ active: tab === 'notes' }"
+          @click="tab = 'notes'"
+        >
           Notes
         </button>
       </div>
-      <input type="text"
-        :placeholder="`Search ${tab === 'bookmarks' ? data?.bookmarks?.length : data?.notes?.length} ${tab}`"
-        v-model="query" />
+      <input
+        type="text"
+        :placeholder="`Search ${
+          tab === 'bookmarks' ? data?.bookmarks?.length : data?.notes?.length
+        } ${tab}`"
+        v-model="query"
+      />
       <div id="youversion-search-list">
         <div v-if="query" class="yv-search-header come-up">
-          Filtering {{  tab  }} with query: "{{  query  }}"
+          Filtering {{ tab }} with query: "{{ query }}"
         </div>
 
         <!-- BOOKMARKS CARD -->
         <div v-if="tab === 'bookmarks'" class="bookmarks">
           <div v-if="data?.bookmarks?.length === 0" class="center">
             Bookmarks still loading...
-            <span>Go to <a href="https://my.bible.com" target="_blank">Youversion Bible App</a> and check back in
-              ~2mins</span>
+            <span
+              >Go to
+              <a href="https://my.bible.com" target="_blank"
+                >Youversion Bible App</a
+              >
+              and check back in ~2mins</span
+            >
           </div>
           <div v-if="results" class="yv-search-grid come-up">
-            <div class="yv-card come-up" v-for="bookmark in results" :key="bookmark.id"
-              v-show="bookmark.kind === 'bookmark'">
+            <div
+              class="yv-card come-up"
+              v-for="bookmark in results"
+              :key="bookmark.id"
+              v-show="bookmark.kind === 'bookmark'"
+            >
               <div class="col">
                 <div class="title">
-                  {{  removeHTML(bookmark.object.moment_title)  }}
+                  {{ removeHTML(bookmark.object.moment_title) }}
                 </div>
                 <div class="labels">
-                  <div v-for="chip in bookmark.object.labels" :key="chip" class="label chip">
-                    {{  chip  }}
+                  <div
+                    v-for="chip in bookmark.object.labels"
+                    :key="chip"
+                    class="label chip"
+                  >
+                    {{ chip }}
                   </div>
-                  <div v-for="scripture in bookmark.object.references" :key="scripture.human"
-                    class="scripture chip favour">
-                    {{  scripture.human  }}
+                  <div
+                    v-for="scripture in bookmark.object.references"
+                    :key="scripture.human"
+                    class="scripture chip favour"
+                  >
+                    {{ scripture.human }}
                   </div>
                 </div>
                 <div class="time">
                   {{
-                   new Date(bookmark.object.created_dt).toDateString().replace(" ", ", ") 
+                    new Date(bookmark.object.created_dt)
+                      .toDateString()
+                      .replace(" ", ", ")
                   }}
                 </div>
               </div>
             </div>
           </div>
           <div v-else class="yv-search-grid come-up">
-            <div class="yv-card come-up" v-for="bookmark in data.bookmarks" :key="bookmark.id"
-              v-show="bookmark.kind === 'bookmark'">
+            <div
+              class="yv-card come-up"
+              v-for="bookmark in data.bookmarks"
+              :key="bookmark.id"
+              v-show="bookmark.kind === 'bookmark'"
+            >
               <div class="col">
                 <div class="title">
-                  {{  removeHTML(bookmark.object.moment_title)  }}
+                  {{ removeHTML(bookmark.object.moment_title) }}
                 </div>
                 <div class="labels">
-                  <div v-for="chip in bookmark.object.labels" :key="chip" class="label chip">
-                    {{  chip  }}
+                  <div
+                    v-for="chip in bookmark.object.labels"
+                    :key="chip"
+                    class="label chip"
+                  >
+                    {{ chip }}
                   </div>
-                  <div v-for="scripture in bookmark.object.references" :key="scripture.human"
-                    class="scripture chip favour">
-                    {{  scripture.human  }}
+                  <div
+                    v-for="scripture in bookmark.object.references"
+                    :key="scripture.human"
+                    class="scripture chip favour"
+                  >
+                    {{ scripture.human }}
                   </div>
                 </div>
                 <div class="time">
                   {{
-                   new Date(bookmark.object.created_dt)
-                   .toDateString()
-                   .replace(" ", ", ")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    new Date(bookmark.object.created_dt)
+                      .toDateString()
+                      .replace(" ", ", ")
                   }}
                 </div>
               </div>
@@ -243,228 +205,65 @@ export default {
         <div v-if="tab === 'notes'" class="notes">
           <div v-if="data?.notes?.length === 0" class="center">
             Notes still loading...
-            <span>Go to <a href="https://my.bible.com" target="_blank">Youversion Bible App</a> and check back in
-              ~2mins</span>
+            <span
+              >Go to
+              <a href="https://my.bible.com" target="_blank"
+                >Youversion Bible App</a
+              >
+              and check back in ~2mins</span
+            >
           </div>
           <div v-if="results" class="yv-search-grid come-up">
-            <div class="yv-card come-up" v-for="note in results" :key="note.id" v-show="note.kind === 'note'">
+            <div
+              class="yv-card come-up"
+              v-for="note in results"
+              :key="note.id"
+              v-show="note.kind === 'note'"
+            >
               <div class="col">
-                <div class="title">{{  note.object.content  }}</div>
+                <div class="title">{{ note.object.content }}</div>
                 <div class="labels">
-                  <div v-for="scripture in note.object.references" :key="scripture.human" class="scripture chip favour">
-                    {{  scripture.human  }}
+                  <div
+                    v-for="scripture in note.object.references"
+                    :key="scripture.human"
+                    class="scripture chip favour"
+                  >
+                    {{ scripture.human }}
                   </div>
                 </div>
                 <div class="time">
                   {{
-                   new Date(note.object.created_dt)
-                   .toDateString()
-                   .replace(" ", ", ")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    new Date(note.object.created_dt)
+                      .toDateString()
+                      .replace(" ", ", ")
                   }}
                 </div>
               </div>
             </div>
           </div>
           <div v-else class="yv-search-grid come-up">
-            <div class="yv-card come-up" v-for="note in data.notes" :key="note.id" v-show="note.kind === 'note'">
+            <div
+              class="yv-card come-up"
+              v-for="note in data.notes"
+              :key="note.id"
+              v-show="note.kind === 'note'"
+            >
               <div class="col">
-                <div class="title">{{  note.object.content  }}</div>
+                <div class="title">{{ note.object.content }}</div>
                 <div class="labels">
-                  <div v-for="scripture in note.object.references" :key="scripture.human" class="scripture chip favour">
-                    {{  scripture.human  }}
+                  <div
+                    v-for="scripture in note.object.references"
+                    :key="scripture.human"
+                    class="scripture chip favour"
+                  >
+                    {{ scripture.human }}
                   </div>
                 </div>
                 <div class="time">
                   {{
-                   new Date(note.object.created_dt)
-                   .toDateString()
-                   .replace(" ", ", ")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    new Date(note.object.created_dt)
+                      .toDateString()
+                      .replace(" ", ", ")
                   }}
                 </div>
               </div>
@@ -585,7 +384,7 @@ button {
   margin-bottom: 1rem;
   border: 0;
   outline: none;
-  background: #FFF;
+  background: #fff;
   position: absolute;
   right: 0;
 }
@@ -594,7 +393,7 @@ button {
   margin-bottom: 0.5rem;
   border: 0;
   outline: none;
-  background: #FFF;
+  background: #fff;
   height: 40px;
   width: 40px;
 }
