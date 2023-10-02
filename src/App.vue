@@ -1,22 +1,27 @@
 <!-- eslint-disable no-undef -->
 <script>
-// import data from "./data";
+import data from "./data"
+import NotesTab from "./components/NotesTab.vue"
+import BookmarksTab from "./components/BookmarksTab.vue"
 
 export default {
   name: "App",
   data() {
     return {
       tab: "bookmarks",
-      data: { bookmarks: [], notes: [] },
+      data: data,
       query: "",
       loading: false,
-    };
+    }
   },
   async created() {
-    const app = this;
-
-    const storage = await chrome.storage.local.get();
-    app.data = { bookmarks: storage.bookmarks, notes: storage.notes, lastUpdated: storage.lastUpdated };
+    const app = this
+    const storage = await chrome.storage.local.get()
+    app.data = {
+      bookmarks: storage.bookmarks,
+      notes: storage.notes,
+      lastUpdated: storage.lastUpdated,
+    }
   },
   computed: {
     results() {
@@ -24,8 +29,8 @@ export default {
         let cardsInner =
           this.tab === "bookmarks"
             ? this.data.bookmarks || []
-            : this.data.notes || [];
-        console.log("cardsInner", cardsInner);
+            : this.data.notes || []
+        console.log("cardsInner", cardsInner)
         return cardsInner.filter(
           (card) =>
             JSON.stringify(card.object.labels)
@@ -37,24 +42,30 @@ export default {
             JSON.stringify(card.object.content)
               ?.toLowerCase()
               .includes(this.query.toLowerCase())
-        );
+        )
       }
-      return null;
+      return null
     },
   },
   methods: {
-    removeHTML(string) {
-      return string.replaceAll("<b>", "").replaceAll("</b>", "");
-    },
     async refreshData() {
-      this.loading = true;
-      const storage = await chrome.storage.local.get();
-      await chrome.storage.local.set({ bookmarks: [], notes: [], lastUpdated: null });
-      this.data = { bookmarks: storage.bookmarks, notes: storage.notes, lastUpdated: storage.lastUpdated };
-      this.loading = false;
+      this.loading = true
+      const storage = await chrome.storage.local.get()
+      await chrome.storage.local.set({
+        bookmarks: [],
+        notes: [],
+        lastUpdated: null,
+      })
+      this.data = {
+        bookmarks: storage.bookmarks,
+        notes: storage.notes,
+        lastUpdated: storage.lastUpdated,
+      }
+      this.loading = false
     },
   },
-};
+  components: { NotesTab, BookmarksTab },
+}
 </script>
 
 <template>
@@ -68,20 +79,10 @@ export default {
             >Favour Felix</a
           ></span
         >
-        <!-- <button class="clear-btn" @click="refreshData">
-          <svg :class="{ rotate: loading }" xmlns="http://www.w3.org/2000/svg"
-            class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
-            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
-          </svg>
-        </button> -->
-        
       </div>
       <div class="flex">
         <span>
-          Last updated: {{ data.lastUpdated }}, 
+          Last updated: {{ data.lastUpdated }},
           <a href="https://my.bible.com" target="_blank">Refresh Data</a>
         </span>
       </div>
@@ -114,162 +115,18 @@ export default {
         </div>
 
         <!-- BOOKMARKS CARD -->
-        <div v-if="tab === 'bookmarks'" class="bookmarks">
-          <div v-if="data?.bookmarks?.length === 0" class="center">
-            Bookmarks still loading...
-            <span
-              >Go to
-              <a href="https://my.bible.com" target="_blank"
-                >Youversion Bible App</a
-              >
-              and check back in ~2mins</span
-            >
-          </div>
-          <div v-if="results" class="yv-search-grid come-up">
-            <div
-              class="yv-card come-up"
-              v-for="bookmark in results"
-              :key="bookmark.id"
-              v-show="bookmark.kind === 'bookmark'"
-            >
-              <div class="col">
-                <div class="title">
-                  {{ removeHTML(bookmark.object.moment_title) }}
-                </div>
-                <div class="labels">
-                  <div
-                    v-for="chip in bookmark.object.labels"
-                    :key="chip"
-                    class="label chip"
-                  >
-                    {{ chip }}
-                  </div>
-                  <div
-                    v-for="scripture in bookmark.object.references"
-                    :key="scripture.human"
-                    class="scripture chip favour"
-                  >
-                    {{ scripture.human }}
-                  </div>
-                </div>
-                <div class="time">
-                  {{
-                    new Date(bookmark.object.created_dt)
-                      .toDateString()
-                      .replace(" ", ", ")
-                  }}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div v-else class="yv-search-grid come-up">
-            <div
-              class="yv-card come-up"
-              v-for="bookmark in data.bookmarks"
-              :key="bookmark.id"
-              v-show="bookmark.kind === 'bookmark'"
-            >
-              <div class="col">
-                <div class="title">
-                  {{ removeHTML(bookmark.object.moment_title) }}
-                </div>
-                <div class="labels">
-                  <div
-                    v-for="chip in bookmark.object.labels"
-                    :key="chip"
-                    class="label chip"
-                  >
-                    {{ chip }}
-                  </div>
-                  <div
-                    v-for="scripture in bookmark.object.references"
-                    :key="scripture.human"
-                    class="scripture chip favour"
-                  >
-                    {{ scripture.human }}
-                  </div>
-                </div>
-                <div class="time">
-                  {{
-                    new Date(bookmark.object.created_dt)
-                      .toDateString()
-                      .replace(" ", ", ")
-                  }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <BookmarksTab
+          v-if="tab === 'bookmarks'"
+          :bookmarks="data?.bookmarks"
+          :results="results"
+        />
 
         <!-- NOTES CARD -->
-        <div v-if="tab === 'notes'" class="notes">
-          <div v-if="data?.notes?.length === 0" class="center">
-            Notes still loading...
-            <span
-              >Go to
-              <a href="https://my.bible.com" target="_blank"
-                >Youversion Bible App</a
-              >
-              and check back in ~2mins</span
-            >
-          </div>
-          <div v-if="results" class="yv-search-grid come-up">
-            <div
-              class="yv-card come-up"
-              v-for="note in results"
-              :key="note.id"
-              v-show="note.kind === 'note'"
-            >
-              <div class="col">
-                <div class="title">{{ note.object.content }}</div>
-                <div class="labels">
-                  <div
-                    v-for="scripture in note.object.references"
-                    :key="scripture.human"
-                    class="scripture chip favour"
-                  >
-                    {{ scripture.human }}
-                  </div>
-                </div>
-                <div class="time">
-                  {{
-                    new Date(note.object.created_dt)
-                      .toDateString()
-                      .replace(" ", ", ")
-                  }}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div v-else class="yv-search-grid come-up">
-            <div
-              class="yv-card come-up"
-              v-for="note in data.notes"
-              :key="note.id"
-              v-show="note.kind === 'note'"
-            >
-              <div class="col">
-                <div class="title">{{ note.object.content }}</div>
-                <div class="labels">
-                  <div
-                    v-for="scripture in note.object.references"
-                    :key="scripture.human"
-                    class="scripture chip favour"
-                  >
-                    {{ scripture.human }}
-                  </div>
-                </div>
-                <div class="time">
-                  {{
-                    new Date(note.object.created_dt)
-                      .toDateString()
-                      .replace(" ", ", ")
-                  }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <NotesTab
+          v-if="tab === 'notes'"
+          :notes="data?.notes"
+          :results="results"
+        />
       </div>
     </div>
     <!-- <button id="open-search" onclick="toggleSearch()">
@@ -278,7 +135,7 @@ export default {
   </div>
 </template>
 
-<style scoped>
+<style>
 main {
   padding: 1rem 0;
 }
@@ -468,54 +325,5 @@ input {
   gap: 1rem;
   max-height: 310px;
   overflow-y: auto;
-}
-
-.yv-card {
-  flex-basis: 100%;
-  padding: 1rem;
-  background: #fff;
-  border: 1px solid rgba(2, 28, 62, 0.03);
-  box-shadow: 3px 2px 25px rgba(2, 129, 255, 0.03);
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  row-gap: 1rem;
-  justify-content: space-between;
-}
-
-.yv-card .title {
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-  font-weight: 500;
-}
-
-.yv-card .labels,
-.yv-card .scriptures {
-  margin-bottom: 0.5rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.yv-card .chip {
-  background: #ffe9eb;
-  border: 1px solid #ff3d4d;
-  color: #ff3d4d;
-  border-radius: 6px;
-  padding: 4px 8px;
-  display: inline-flex;
-  font-size: 0.85rem;
-}
-
-.yv-card .chip.favour {
-  background: #ffefd7;
-  border: 1px solid #ffab2d;
-  color: #ffab2d;
-}
-
-.yv-card .time {
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-  color: #595959;
 }
 </style>
