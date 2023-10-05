@@ -1,13 +1,6 @@
 <template>
   <div class="bookmarks">
-    <div v-if="bookmarks?.length === 0" class="center">
-      Bookmarks still loading...
-      <span
-        >Go to
-        <a href="https://my.bible.com" target="_blank">Youversion Bible App</a>
-        and check back in ~2mins</span
-      >
-    </div>
+    <EmptyState v-if="bookmarks?.length === 0" name="Bookmarks" />
     <div v-if="results" class="yv-search-grid come-up">
       <YVCard
         v-for="bookmark in results"
@@ -29,6 +22,7 @@
 
 <script>
 import YVCard from "./YVCard.vue"
+import EmptyState from "./EmptyState.vue"
 export default {
   props: {
     bookmarks: {
@@ -38,7 +32,7 @@ export default {
       type: Array,
     },
   },
-  components: { YVCard },
+  components: { YVCard, EmptyState },
 }
 </script>
 

@@ -1,6 +1,6 @@
 <!-- eslint-disable no-undef -->
 <script>
-import data from "./data"
+// import data from "./data"
 import NotesTab from "./components/NotesTab.vue"
 import BookmarksTab from "./components/BookmarksTab.vue"
 
@@ -9,7 +9,7 @@ export default {
   data() {
     return {
       tab: "bookmarks",
-      data: data,
+      data: { bookmarks: [], notes: [], lastUpdated: "2023" },
       query: "",
       loading: false,
     }
@@ -142,7 +142,7 @@ main {
 
 h1 {
   margin-top: 0;
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.4rem;
 }
 
 /* YOUVERSION SEARCH CONTENT */
