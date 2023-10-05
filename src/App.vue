@@ -50,6 +50,7 @@ export default {
   methods: {
     async refreshData() {
       this.loading = true
+      window.open("https://my.bible.com", "_newtab")
       const storage = await chrome.storage.local.get()
       await chrome.storage.local.set({
         bookmarks: [],
@@ -61,7 +62,7 @@ export default {
         notes: storage.notes,
         lastUpdated: storage.lastUpdated,
       }
-      this.loading = false
+      // this.loading = false
     },
   },
   components: { NotesTab, BookmarksTab },
@@ -83,7 +84,7 @@ export default {
       <div class="flex">
         <span>
           Last updated: {{ data.lastUpdated }},
-          <a href="https://my.bible.com" target="_blank">Refresh Data</a>
+          <a @click="refreshData" target="_blank">Refresh Data</a>
         </span>
       </div>
       <div class="tabs">
@@ -118,6 +119,7 @@ export default {
         <BookmarksTab
           v-if="tab === 'bookmarks'"
           :bookmarks="data?.bookmarks"
+          :loading="loading"
           :results="results"
         />
 
@@ -125,6 +127,7 @@ export default {
         <NotesTab
           v-if="tab === 'notes'"
           :notes="data?.notes"
+          :loading="loading"
           :results="results"
         />
       </div>
@@ -146,7 +149,8 @@ h1 {
 }
 
 /* YOUVERSION SEARCH CONTENT */
-button {
+button,
+a {
   cursor: pointer;
 }
 

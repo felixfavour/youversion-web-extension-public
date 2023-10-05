@@ -1,5 +1,6 @@
 <template>
   <div class="notes">
+    <!-- <EmptyState v-if="loading" name="Notes" /> -->
     <EmptyState v-if="notes?.length === 0" name="Notes" />
     <div v-if="results" class="yv-search-grid come-up">
       <YVCard
@@ -30,6 +31,9 @@ export default {
     },
     results: {
       type: Array,
+    },
+    loading: {
+      type: Boolean,
     },
   },
   components: { YVCard, EmptyState },

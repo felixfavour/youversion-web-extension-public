@@ -1,5 +1,6 @@
 <template>
   <div class="bookmarks">
+    <!-- <EmptyState v-if="loading" name="Bookmarks" /> -->
     <EmptyState v-if="bookmarks?.length === 0" name="Bookmarks" />
     <div v-if="results" class="yv-search-grid come-up">
       <YVCard
@@ -30,6 +31,9 @@ export default {
     },
     results: {
       type: Array,
+    },
+    loading: {
+      type: Boolean,
     },
   },
   components: { YVCard, EmptyState },
