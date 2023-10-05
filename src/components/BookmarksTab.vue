@@ -7,7 +7,7 @@
         v-for="bookmark in results"
         :key="bookmark.id"
         :item="bookmark"
-        v-show="item.kind === 'bookmark'"
+        v-show="bookmark.kind === 'bookmark'"
       />
     </div>
     <div v-else class="yv-search-grid come-up">
@@ -15,7 +15,7 @@
         v-for="bookmark in bookmarks"
         :key="bookmark.id"
         :item="bookmark"
-        v-show="item.king === 'bookmark'"
+        v-show="bookmark.kind === 'bookmark'"
       />
     </div>
   </div>

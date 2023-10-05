@@ -29,6 +29,7 @@ export default {
   margin-top: 1rem;
   color: #cecece;
   font-weight: 300;
+  padding-bottom: 2rem;
 }
 .loader {
   border: 6px solid #f3f3f3;
