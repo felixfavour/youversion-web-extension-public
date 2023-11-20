@@ -1,8 +1,11 @@
 <!-- eslint-disable no-undef -->
 <script>
 // import data from "./data"
-import NotesTab from "./components/NotesTab.vue"
-import BookmarksTab from "./components/BookmarksTab.vue"
+import NotesTab from "./components/NotesTab.vue";
+import BookmarksTab from "./components/BookmarksTab.vue";
+import MoreIcon from "./components/MoreIcon.vue";
+import MoreTab from "./components/MoreTab.vue";
+import MobileSetup from "./components/MobileSetup.vue";
 
 export default {
   name: "App",
@@ -12,16 +15,17 @@ export default {
       data: { bookmarks: [], notes: [], lastUpdated: "2023" },
       query: "",
       loading: false,
-    }
+      optionActive: null,
+    };
   },
   async created() {
-    const app = this
-    const storage = await chrome.storage.local.get()
+    const app = this;
+    const storage = await chrome.storage.local.get();
     app.data = {
       bookmarks: storage.bookmarks,
       notes: storage.notes,
       lastUpdated: storage.lastUpdated,
-    }
+    };
   },
   computed: {
     results() {
@@ -29,8 +33,8 @@ export default {
         let cardsInner =
           this.tab === "bookmarks"
             ? this.data.bookmarks || []
-            : this.data.notes || []
-        console.log("cardsInner", cardsInner)
+            : this.data.notes || [];
+        console.log("cardsInner", cardsInner);
         return cardsInner.filter(
           (card) =>
             JSON.stringify(card.object.labels)
@@ -42,31 +46,36 @@ export default {
             JSON.stringify(card.object.content)
               ?.toLowerCase()
               .includes(this.query.toLowerCase())
-        )
+        );
       }
-      return null
+      return null;
+    },
+  },
+  watch: {
+    tab() {
+      this.optionActive = null;
     },
   },
   methods: {
     async refreshData() {
-      this.loading = true
-      window.open("https://my.bible.com", "_newtab")
-      const storage = await chrome.storage.local.get()
+      this.loading = true;
+      window.open("https://my.bible.com", "_newtab");
+      const storage = await chrome.storage.local.get();
       await chrome.storage.local.set({
         bookmarks: [],
         notes: [],
         lastUpdated: null,
-      })
+      });
       this.data = {
         bookmarks: storage.bookmarks,
         notes: storage.notes,
         lastUpdated: storage.lastUpdated,
-      }
+      };
       // this.loading = false
     },
   },
-  components: { NotesTab, BookmarksTab },
-}
+  components: { NotesTab, BookmarksTab, MoreIcon, MoreTab, MobileSetup },
+};
 </script>
 
 <template>
@@ -102,39 +111,53 @@ export default {
         >
           Notes
         </button>
+        <button
+          class="tab more"
+          :class="{ active: tab === 'more' }"
+          title="See more options"
+          @click="tab = 'more'"
+        >
+          <MoreIcon />
+        </button>
       </div>
-      <input
-        type="text"
-        :placeholder="`Search ${
-          tab === 'bookmarks' ? data?.bookmarks?.length : data?.notes?.length
-        } ${tab}`"
-        v-model="query"
-      />
-      <div id="youversion-search-list">
-        <div v-if="query" class="yv-search-header come-up">
-          Filtering {{ tab }} with query: "{{ query }}"
+      <template v-if="tab !== 'more'">
+        <input
+          type="text"
+          :placeholder="`Search ${
+            tab === 'bookmarks' ? data?.bookmarks?.length : data?.notes?.length
+          } ${tab}`"
+          v-model="query"
+        />
+        <div id="youversion-search-list">
+          <div v-if="query" class="yv-search-header come-up">
+            Filtering {{ tab }} with query: "{{ query }}"
+          </div>
+
+          <!-- BOOKMARKS CARD -->
+          <BookmarksTab
+            v-if="tab === 'bookmarks'"
+            :bookmarks="data?.bookmarks"
+            :loading="loading"
+            :results="results"
+          />
+
+          <!-- NOTES CARD -->
+          <NotesTab
+            v-if="tab === 'notes'"
+            :notes="data?.notes"
+            :loading="loading"
+            :results="results"
+          />
         </div>
+      </template>
+      <!-- MORE OPTIONS CARD -->
+      <MoreTab
+        v-else-if="optionActive === null"
+        @option="optionActive = $event"
+      />
 
-        <!-- BOOKMARKS CARD -->
-        <BookmarksTab
-          v-if="tab === 'bookmarks'"
-          :bookmarks="data?.bookmarks"
-          :loading="loading"
-          :results="results"
-        />
-
-        <!-- NOTES CARD -->
-        <NotesTab
-          v-if="tab === 'notes'"
-          :notes="data?.notes"
-          :loading="loading"
-          :results="results"
-        />
-      </div>
+      <MobileSetup v-if="optionActive === 'MOBILE_SETUP'" />
     </div>
-    <!-- <button id="open-search" onclick="toggleSearch()">
-      Open Youversion Search
-    </button> -->
   </div>
 </template>
 
@@ -201,8 +224,8 @@ a {
 
 #youversion-search .tabs {
   display: grid;
-  grid-template-columns: repeat(2, 48.5%);
-  gap: 3%;
+  grid-template-columns: 42% 42% 11%;
+  gap: 2%;
   margin: 1rem 0;
 }
 
@@ -222,6 +245,13 @@ a {
   -o-transition: 0.2s;
   font-size: 1rem;
   padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#youversion-search .tab.more {
+  background: #c2c2c2;
 }
 
 .flex {
@@ -269,6 +299,11 @@ a {
 #youversion-search .tab:hover {
   background: #ff3d4d;
   color: #fff;
+}
+
+#youversion-search .tab.active path,
+#youversion-search .tab:hover path {
+  fill: #fff;
 }
 
 .youversion-search-main {
