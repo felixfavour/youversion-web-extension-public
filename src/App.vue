@@ -59,7 +59,7 @@ export default {
   methods: {
     async refreshData() {
       this.loading = true;
-      window.open("https://my.bible.com", "_newtab");
+      window.open("https://my.bible.com/profile", "_newtab");
       const storage = await chrome.storage.local.get();
       await chrome.storage.local.set({
         bookmarks: [],
