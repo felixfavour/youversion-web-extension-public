@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Youversion Web - Filter notes & bookmarks",
   "description": "Web Browser extension for YouVersion Bible App, to help make notes, bookmarks, and highlights more filterable among others.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "action": {
     "default_popup": "index.html",
     "default_icon": "images/youversion-search-128.png"
