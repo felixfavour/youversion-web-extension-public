@@ -1,24 +1,11 @@
-# youversion-web
+# Youversion Search
 
-## Project setup
-```
-npm install
-```
+Web Browser extension for YouVersion Bible App, to help make notes, bookmarks, and highlights more filterable among others.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+[Install on Chrome Webstore](https://chromewebstore.google.com/detail/youversion-search-filter/ccdlfnlcdkjjcjdiidgghcgeadghfbdp)
 
-### Compiles and minifies for production
-```
-npm run build
-```
+Public version of repository that doesn't harm any user of the application by releasing plausible sensitive information.
 
-### Lints and fixes files
-```
-npm run lint
-```
+[See product homepage](https://favourfelix.com/youversion-search/)
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+\*Please note that Youversion Search is not affiliated with Youversion or Life.Church. It is a standalone product built by an independent developer.
